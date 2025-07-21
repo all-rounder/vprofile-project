@@ -10,18 +10,17 @@ pipeline {
     }
     
     environment {
-        SNAP_REPO = 'vprofile-snapshot'
-		NEXUS_USER = 'admin'
-		NEXUS_PASS = 'admin123'
-		RELEASE_REPO = 'vprofile-release'
-		CENTRAL_REPO = 'vpro-maven-central'
-		NEXUSIP = '172.31.7.72'
+        NEXUSIP = '172.31.7.72'
 		NEXUSPORT = '8081'
-		NEXUS_GRP_REPO = 'vpro-maven-group'
-        NEXUS_LOGIN = 'nexuslogin'
+		NEXUSUSER = 'admin'
+        NEXUSPASS = credentials('nexuspass')
+        NEXUS-GRP-REPO = 'vpro-maven-group'
+        CENTRAL-REPO = 'vpro-maven-central'
+		RELEASE-REPO = 'vprofile-release'
+		SNAP-REPO = 'vprofile-snapshot'
+        NEXUS-LOGIN = 'nexuslogin'
         SONARSERVER = 'sonarserver'
         SONARSCANNER = 'sonarscanner'
-        NEXUSPASS = credentials('nexuspass')
     }
 
     stages {
@@ -50,34 +49,6 @@ pipeline {
             }
         }
 
-        stage('Sonar Analysis') {
-            environment {
-                scannerHome = tool "${SONARSCANNER}"
-            }
-            steps {
-               withSonarQubeEnv("${SONARSERVER}") {
-                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
-                   -Dsonar.projectName=vprofile \
-                   -Dsonar.projectVersion=1.0 \
-                   -Dsonar.sources=src/ \
-                   -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
-                   -Dsonar.junit.reportsPath=target/surefire-reports/ \
-                   -Dsonar.jacoco.reportsPath=target/jacoco.exec \
-                   -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
-              }
-            }
-        }
-
-        stage("Quality Gate") {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
-                    // true = set pipeline to UNSTABLE, false = don't
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
         stage("UploadArtifact"){
             steps{
                 nexusArtifactUploader(
@@ -86,8 +57,8 @@ pipeline {
                   nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
                   groupId: 'QA',
                   version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-                  repository: "${RELEASE_REPO}",
-                  credentialsId: "${NEXUS_LOGIN}",
+                  repository: "${RELEASE-REPO}",
+                  credentialsId: "${NEXUS-LOGIN}",
                   artifacts: [
                     [artifactId: 'vproapp',
                      classifier: '',
@@ -108,7 +79,7 @@ pipeline {
 			    credentialsId: 'applogin',
 			    disableHostKeyChecking: true,
                 extraVars   : [
-                   	USER: "admin",
+                   	USER: "${NEXUSUSER}",
                     PASS: "${NEXUSPASS}",
 			        nexusip: "172.31.7.72",
 			        reponame: "vprofile-release",

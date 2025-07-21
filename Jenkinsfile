@@ -10,15 +10,15 @@ pipeline {
     }
     
     environment {
-        NEXUSIP = '172.31.7.72'
-		NEXUSPORT = '8081'
-		NEXUSUSER = 'admin'
-        NEXUSPASS = credentials('nexuspass')
-        NEXUS-GRP-REPO = 'vpro-maven-group'
-        CENTRAL-REPO = 'vpro-maven-central'
-		RELEASE-REPO = 'vprofile-release'
-		SNAP-REPO = 'vprofile-snapshot'
-        NEXUS-LOGIN = 'nexuslogin'
+        NEXUS_IP = '172.31.7.72'
+		NEXUS_PORT = '8081'
+		NEXUS_USER = 'admin'
+        NEXUS_PASS = credentials('nexuspass')
+        NEXUS_LOGIN = 'nexuslogin'
+        NEXUS_GRP_REPO = 'vpro-maven-group'
+        CENTRAL_REPO = 'vpro-maven-central'
+		RELEASE_REPO = 'vprofile-release'
+		SNAP_REPO = 'vprofile-snapshot'
         SONARSERVER = 'sonarserver'
         SONARSCANNER = 'sonarscanner'
     }
@@ -54,11 +54,11 @@ pipeline {
                 nexusArtifactUploader(
                   nexusVersion: 'nexus3',
                   protocol: 'http',
-                  nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
+                  nexusUrl: "${NEXUS_IP}:${NEXUS_PORT}",
                   groupId: 'QA',
                   version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-                  repository: "${RELEASE-REPO}",
-                  credentialsId: "${NEXUS-LOGIN}",
+                  repository: "${RELEASE_REPO}",
+                  credentialsId: "${NEXUS_LOGIN}",
                   artifacts: [
                     [artifactId: 'vproapp',
                      classifier: '',
@@ -79,8 +79,8 @@ pipeline {
 			    credentialsId: 'applogin',
 			    disableHostKeyChecking: true,
                 extraVars   : [
-                   	USER: "${NEXUSUSER}",
-                    PASS: "${NEXUSPASS}",
+                   	USER: "${NEXUS_USER}",
+                    PASS: "${NEXUS_PASS}",
 			        nexusip: "172.31.7.72",
 			        reponame: "vprofile-release",
 			        groupid: "QA",
